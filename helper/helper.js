@@ -51,15 +51,17 @@ module.exports = {
                     {
                         '$match' : {
                             
-                            'exchanges.exchangeName' : exchange,
-                            userId : new objectId(userId)
+                            'exchange' : exchange,
+                            userId     : userId.toString()
                         }
                     },
                     {
                         '$project' : {
                             _id        :   {'$toString' : '$_id'},
-                            userId     :   "$userId",
-                            exchanges  :   "$exchanges"
+                            userId     :   '$userId',
+                            exchange   :   '$exchange',
+                            apiKey     :   '$apiKey',
+                            secretKey  :   '$secretKey'
                         }
                     },
                 ];
@@ -141,5 +143,68 @@ module.exports = {
             })
         })
     },//end getSymbols
+
+
+    checkIsThisExchangeAlreadyExists : (user_id, exchange) => {
+        return new Promise(resolve => {
+            conn.then(async(db) => {
+
+                let count = await db.collection('exchanges').countDocuments({user_id : user_id.toString(), exchange : exchange})
+                resolve(count)
+            })
+        })
+    },
+
+
+    linkExchange : (addObject) => {
+        return new Promise( resolve => {
+            conn.then((db) => {
+                db.collection('exchanges').insertOne(addObject)
+            })
+        })
+    },
+
+    //every 6 hours 
+    userExchangeDetails : (exchangeName) => {
+        return new Promise (resolve => {
+            conn.then(async (db) => {
+
+                var olderDate = new Date();
+                olderDate.setHours(olderDate.getHours() - 6)
+
+                let recordUpdateQuery = [
+                    {
+                        '$match' : {
+
+                            '$or' : [
+                                { 'lat-updated_time'  :  {'$exists' : false} },
+                                { 'lat-updated_time'  :  {'$gte'    : olderDate} }
+                            ],
+                            'exchange' : exchangeName
+                        }
+                    },
+                    {
+                        '$project' : {
+                            _id        :   {'$toString' : '$_id'},
+                            user_id    :   "$user_id",
+                            exchanges  :   "$exchanges",
+                            apiKey     :   '$apiKey',
+                            secretKey  :   '$secretKey'
+                        }
+                    },
+                    {
+                        '$sort' : { 'updated_time' : -1}
+                    },
+                    {
+                        '$limit' : 5
+                    }
+                ];
+
+                let data = await db.collection('exchanges').aggregate(recordUpdateQuery).toArray();
+                resolve(data);
+            })
+        })
+    },//end balance cron
+
 };//end helper
 

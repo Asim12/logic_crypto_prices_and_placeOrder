@@ -35,7 +35,7 @@ router.post('/apiKeyValidationCheck' , async(req, res, next) => {
         
         if(apiDetailsCheck.length > 0){
             
-            let statusCheck = await helper.isThisApiValid( apiDetailsCheck[0]['exchanges'][0]['apiKey'], apiDetailsCheck[0]['exchanges'][0]['secretKey'] );
+            let statusCheck = await helper.isThisApiValid( apiDetailsCheck[0]['apiKey'], apiDetailsCheck[0]['secretKey'] );
 
             let status = '';
             if(statusCheck == true){
