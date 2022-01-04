@@ -65,16 +65,30 @@ module.exports = {
 
             if(exchangeDetails.length > 0){
                 for(let user = 0 ; user < exchangeDetails.length; user++){
+
+                    console.log('apiKey ====>>>>>>>>>>>>>>',exchangeDetails[user]['apiKey']);
+                    console.log('secretKey ======>>>>>>>>>>>>>>>>', exchangeDetails[user]['secretKey']);
+
+                    // let serverTime = await helper.getServerTimeStamp();
+                    // let time = new Date(new Date().toUTCString())
+                    // console.log( 'current timestamp in milisec ====>>>>>>>>>>>>>>>>>>>>>>>>>', new Date()  )
+
+                    // var unixTimestamp = (new Date().getTime()/1000);
+                    // console.log('UNIX time stamp', unixTimestamp);
+
+                    // console.log('serverTime =========>>>>>>>>>>>>>>>>>>' , serverTime )
+
                     const binance = new Binance().options({
                         APIKEY      :   exchangeDetails[user]['apiKey'],
-                        APISECRET   :   exchangeDetails[user]['secretKey']
+                        APISECRET   :   exchangeDetails[user]['secretKey'],
+                        timestamp   :   Date.now()
                     });
 
                     binance.balance(async (error, balances) => {
                         if ( error ){
 
                             db.collection('exchanges').updateOne({ user_id : exchangeDetails[user]['user_id']}, {'$set' : { updated_time : new Date()}})
-                            console.log('error')
+                            console.log(error.body)
                             return true;
                         }else{
                             for( let coinIteration = 0 ; coinIteration < coins.length ;  coinIteration++ ){

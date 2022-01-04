@@ -5,10 +5,10 @@ const auth = require('../middleware/auth')
 
 router.post('/getUserBalances' , async(req, res, next) => {
 
-    if(req.body.exchange && req.body.userId){
+    if(req.body.exchange && req.body.user_id){
         let exchange = req.body.exchange.toString();
-        let userId   = req.body.userId.toString()
-        let userBalance = await helper.getUserBalance(exchange, userId)
+        let user_id   = req.body.user_id.toString()
+        let userBalance = await helper.getUserBalance(exchange, user_id)
 
         let responseArray = {
             status : 200,
@@ -69,6 +69,24 @@ router.post('/apiKeyValidationCheck' , async(req, res, next) => {
 
 })
 
+router.post('/getMyexchanges', async(req, res, next) => {
+    if(req.body.user_id){
+        let exchanges = await helper.getExchanges(req.body.user_id);
+
+        let responseArray = {
+            status  : 200,
+            data    : exchanges,
+        }
+        res.status(200).send(responseArray);  
+    }else{
+
+        let responseArray = {
+            status : 400,
+            message : "payload missing"
+        }
+        res.status(400).send(responseArray);  
+    }
+})
 
 module.exports = router;
 

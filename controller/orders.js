@@ -68,7 +68,6 @@ router.post('/placeOrder', async(req,res) => {
                     'type'                  :       'timer',
                     'created_date_new'      :       new Date()
                 }
-
                 //re.body.timeCondition  value should be every, on , right_now
                 if(req.body.timeCondition  == 'every'){
 
@@ -227,5 +226,6 @@ router.post('/linkExchange', async (req, res) => {
         res.status(400).send(responseArray);    
     }
 })
+
 
 module.exports = router;

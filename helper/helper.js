@@ -3,12 +3,15 @@ const MongoClient =   require('mongodb').MongoClient;
 const objectId    =   require('mongodb').ObjectId;
 const { IoTJobsDataPlane } = require("aws-sdk");
 const Binance = require('node-binance-api');
+// import axios from "axios";
+const axios = require('axios');
+
 
 module.exports = {
-    getUserBalance : (exchange, userId) => {
+    getUserBalance : (exchange, user_id) => {
         return new Promise(resolve => {
             conn.then( async(db) => {
-                let balance = await db.collection(exchange).find( { userId : new objectId(userId.toString()) }).toArray()
+                let balance = await db.collection(exchange).find( { user_id : user_id.toString() }).toArray()
                 resolve(balance)
             })
         })
@@ -103,12 +106,13 @@ module.exports = {
                 let searchQuery = {
 
                     user_id   : user_id.toString()
-                }
-                if(tabName == 'all'){
+                } 
+                    searchQuery['status'] = 'pause';
+                if(tabName == 'all'){  
 
                 }else if(tabName == 'active'){
 
-                    searchQuery['status'] = { '$in' : ['active', 'new']};
+                    searchQuery['status'] = { '$in' : ['active', 'new', 'FILLED']};
                 }else if(tabName == 'completed'){
 
                     searchQuery['status'] = 'completed';
@@ -206,5 +210,33 @@ module.exports = {
         })
     },//end balance cron
 
+
+    getExchanges : (user_id)=> {
+        return new Promise(resolve => {
+            conn.then(async(db) => {
+
+                let data  = await db.collection('exchanges').find({user_id : user_id.toString() }).toArray()
+                resolve(data)
+            })
+        })
+    },
+
+
+    getServerTimeStamp : () => {
+        return new Promise(resolve => {
+            conn.then(async(db) => {
+                const options = {method: 'GET', url: 'https://api.binance.com/api/v3/time'};
+                axios.request(options).then(function (response) {
+                    // console.log(response.data);
+
+                    resolve(response.data.serverTime)
+                }).catch(function (error) {
+                    // resol
+                    console.error(error);
+                });
+            })
+        })
+    }
+    // https://api.binance.com/api/v3/time
 };//end helper
 

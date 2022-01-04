@@ -20,7 +20,7 @@ cron.schedule('*/10 * * * * *', () => {
 
 
 //run after every 2 sec
-cron.schedule('*/4 * * * * *', () => {
+cron.schedule('*/2 * * * * *', () => {
         
     // cronBinance.price();
 });
